@@ -1,0 +1,37 @@
+{
+    "name": "npowest/doctrine-types-bundle",
+    "description": "This bundle adds Doctrine Types.",
+    "type": "symfony-bundle",
+    "license": [ "MIT" ],
+    "authors": [
+        {
+            "name": "Npowest",
+            "homepage": "https://npowest.ru/",
+            "role": "Developer Npowest"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Npowest\\Bundle\\DoctrineTypes\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.2",
+        "symfony/flex": "^2.2",
+        "doctrine/dbal": "^3.6",
+        "symfony/dependency-injection": "6.4.*",
+        "symfony/config": "6.4.*",
+        "symfony/http-kernel": "6.4.*"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": true,
+            "require": "6.4.*"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true
+        }
+    }
+}
