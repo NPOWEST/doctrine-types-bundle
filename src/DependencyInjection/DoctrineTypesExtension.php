@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Npowest\Bundle\DoctrineTypes\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
@@ -12,20 +14,11 @@ class DoctrineTypesExtension extends Extension
     public function getAlias(): string
     {
         return 'npowest_doctrine_types';
-    }
+    }//end getAlias()
 
-    /**
-     * @inheritDoc
-     * @throws \Exception
-     */
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $configuration = $this->getConfiguration($configs, $container);
-        $config = $this->processConfiguration($configuration, $configs);
-
-        $loader = new PhpFileLoader($container, new FileLocator(\dirname(__DIR__).'/Resources/config'));
-        $loader->load('services.php');
-
-        $container->setParameter('npowest_doctrine_types.security.providers.entity.class', $config['security']['providers']['entity']['class']);
-    }
-}
+        // $loader = new PhpFileLoader($container, new FileLocator(\dirname(__DIR__).'/Resources/config'));
+        // $loader->load('services.php');
+    }//end load()
+}//end class

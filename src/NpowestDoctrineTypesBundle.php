@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Npowest\Bundle\DoctrineTypes;
 
 use Npowest\Bundle\DoctrineTypes\DependencyInjection\CompilerPass\DoctrineTypePass;
@@ -15,11 +17,12 @@ class NpowestDoctrineTypesBundle extends Bundle
         if (null === $this->extension) {
             $this->extension = new DoctrineTypesExtension();
         }
+
         return $this->extension;
-    }
+    }//end getContainerExtension()
 
     public function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new DoctrineTypePass());
-    }
-}
+    }//end build()
+}//end class

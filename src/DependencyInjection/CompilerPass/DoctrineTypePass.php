@@ -1,26 +1,79 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Npowest\Bundle\DoctrineTypes\DependencyInjection\CompilerPass;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Generator;
+use League\ConstructFinder\ConstructFinder;
+use ReflectionClass;
 
 class DoctrineTypePass implements CompilerPassInterface
 {
-    public const TAG = 'npowest.doctrine_type';
+    private const CONTAINER_TYPES_PARAMETER = 'doctrine.dbal.connection_factory.types';
+    private const PROJECT_TYPES_PATTERN     = '/DBAL\\\\Types(\\\\(.*))?/i';
+    private const TYPE_NAME_CONSTANT_NAME   = 'NAME';
+    private const SRC_FOLDER_MASK           = '%s/src';
+
+    private string $projectDir = '';
+
+    public function __construct()
+    {
+        $$this->projectDir = __DIR__.'/../../';
+    }//end __construct()
 
     public function process(ContainerBuilder $container): void
     {
-        $typesDefinition = [];
-        if ($container->hasParameter('doctrine.dbal.connection_factory.types')) {
-            $typesDefinition = $container->getParameter('doctrine.dbal.connection_factory.types');
-        }
-        $taggedServices = $container->findTaggedServiceIds(self::TAG);
+        /** @var array<string, array{class: class-string}> $typeDefinition */
+        $typeDefinition = $container->getParameter(self::CONTAINER_TYPES_PARAMETER);
 
-        foreach ($taggedServices as $customType => $definition) {
-            $typesDefinition[$customType::NAME] = ['class' => $customType];
+        $types = $this->generateTypes();
+
+        /** @var array{namespace: string, name: string} $type */
+        foreach ($types as $type) {
+            $name      = $type['name'];
+            $namespace = $type['namespace'];
+
+            if (array_key_exists($name, $typeDefinition)) {
+                continue;
+            }
+
+            $typeDefinition[$name] = ['class' => $namespace];
         }
 
-        $container->setParameter('doctrine.dbal.connection_factory.types', $typesDefinition);
-    }
-}
+        $container->setParameter(self::CONTAINER_TYPES_PARAMETER, $typeDefinition);
+    }//end process()
+
+    /** @return Generator<int, array{namespace: class-string, name: string}> */
+    private function generateTypes(): iterable
+    {
+        $srcFolder = sprintf(self::SRC_FOLDER_MASK, $this->projectDir);
+
+        $classNames = ConstructFinder::locatedIn($srcFolder)->findClassNames();
+
+        foreach ($classNames as $className) {
+            if (preg_match(self::PROJECT_TYPES_PATTERN, $className) === 0) {
+                continue;
+            }
+
+            $reflection = new ReflectionClass($className);
+
+            if (! $reflection->hasConstant(self::TYPE_NAME_CONSTANT_NAME)) {
+                continue;
+            }
+
+            $constantValue = $reflection->getConstant(self::TYPE_NAME_CONSTANT_NAME);
+
+            if (! is_string($constantValue)) {
+                continue;
+            }
+
+            yield [
+                'namespace' => $reflection->getName(),
+                'name'      => $constantValue,
+            ];
+        }//end foreach
+    }//end generateTypes()
+}//end class
