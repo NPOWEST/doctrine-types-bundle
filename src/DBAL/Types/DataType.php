@@ -1,12 +1,20 @@
 <?php
 
+/**
+ * @see https://npowest.ru
+ *
+ * @license Shareware
+ * @copyright (c) 2019-2024 NPOWest
+ */
+
 declare(strict_types=1);
 
-namespace Npowest\Bundle\DoctrineTypes\Doctrine\DBAL\Types;
+namespace Npowest\Bundle\DoctrineTypes\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\{ConversionException, Type};
+use Doctrine\DBAL\Types\{ConversionException};
 use JsonException;
+use Npowest\Bundle\DoctrineTypes\DBAL\AbstractTypes\AbstractFixedJsonType;
 use Npowest\GardenHelper\Collection\DataCollection;
 
 use function assert;
@@ -22,40 +30,50 @@ final class DataType extends AbstractFixedJsonType
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
-        if (null === $value) {
+        if (null === $value)
+        {
             return null;
         }
 
         assert($value instanceof DataCollection);
         $value = $value->toArray();
 
-        try {
+        try
+        {
             return json_encode($value, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
-        } catch (JsonException $e) {
+        }
+        catch (JsonException $e)
+        {
             throw ConversionException::conversionFailedSerialization($value, 'json', $e->getMessage());
         }
     }//end convertToDatabaseValue()
 
     public function convertToPHPValue($value, AbstractPlatform $platform): ?DataCollection
     {
-        if (null === $value || '' === $value) {
+        if (null === $value || '' === $value)
+        {
             return null;
         }
 
-        if (is_resource($value)) {
+        if (is_resource($value))
+        {
             $value = stream_get_contents($value);
         }
 
-        try {
+        try
+        {
             /** @var array<mixed>|false */
             $array = json_decode((string) $value, true, 512, JSON_THROW_ON_ERROR);
             $value = new DataCollection();
-            if (is_array($array)) {
+            if (is_array($array))
+            {
                 $value->setFromArray($array);
             }
 
             return $value;
-        } catch (JsonException $e) {
+        }
+        catch (JsonException $e)
+        {
             throw ConversionException::conversionFailed($value, $this->getName(), $e);
         }
     }//end convertToPHPValue()
