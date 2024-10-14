@@ -11,4 +11,4 @@ declare(strict_types=1);
 
 namespace Npowest\Bundle\DoctrineTypes\Contracts;
 
-interface DoctrineType {}
+interface DoctrineTypeInterface {}//end interface

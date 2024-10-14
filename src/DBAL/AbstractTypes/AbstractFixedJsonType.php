@@ -13,9 +13,9 @@ namespace Npowest\Bundle\DoctrineTypes\DBAL\AbstractTypes;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Npowest\Bundle\DoctrineTypes\Contracts\DoctrineType;
+use Npowest\Bundle\DoctrineTypes\Contracts\DoctrineTypeInterface;
 
-abstract class AbstractFixedJsonType extends Type implements DoctrineType
+abstract class AbstractFixedJsonType extends Type implements DoctrineTypeInterface
 {
     final public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

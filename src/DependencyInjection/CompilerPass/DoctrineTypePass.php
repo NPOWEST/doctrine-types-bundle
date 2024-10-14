@@ -19,6 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 use function array_key_exists;
 use function is_string;
+use function sprintf;
 
 final class DoctrineTypePass implements CompilerPassInterface
 {

@@ -3,7 +3,7 @@
 This bundle adds Doctrine Types.
 
 ## Requirements
-Symfony ``6.4.*``
+Symfony ``7.1.*``
 
 PHP ``>=8.2``
 
