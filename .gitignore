@@ -1,10 +1,12 @@
-vendor/
-composer.lock
-symfony.lock
-install_linter.sh
-test.sh
-tmp
-.linter/
+/vendor
+/composer.lock
+/symfony.lock
+/install_linter.sh
+/test.sh
+/tmp
+/.linter
+/.vscode
+
 ###> squizlabs/php_codesniffer ###
 /.phpcs-cache
 /phpcs.xml
