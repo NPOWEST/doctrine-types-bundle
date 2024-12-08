@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Npowest\Bundle\DoctrineTypes\DependencyInjection\CompilerPass;
 
 use Generator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
@@ -26,7 +28,7 @@ use function str_replace;
 
 final class DoctrineTypePass implements CompilerPassInterface
 {
-    private const CONTAINER_TYPES_PARAMETER = 'doctrine.dbal.connection_factory.types';
+    public const CONTAINER_TYPES_PARAMETER = 'doctrine.dbal.connection_factory.types';
 
     private const TYPE_NAME_CONSTANT_NAME = 'NAME';
 
@@ -82,7 +84,7 @@ final class DoctrineTypePass implements CompilerPassInterface
         }
 
         // Используем glob для поиска всех PHP файлов в директории
-        $files = glob($srcFolder.'/**/*.php');
+        $files = $this->getFiles($srcFolder);
 
         foreach ($files as $file)
         {
@@ -120,4 +122,21 @@ final class DoctrineTypePass implements CompilerPassInterface
 
         return 'Npowest\\Bundle\\DoctrineTypes\\'.ltrim($namespace, '\\');
     }//end getNamespaceFromFile()
+
+    /**
+     * @return string[]
+     */
+    private function getFiles(string $path): array
+    {
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
+        $phpFiles = [];
+        
+        foreach ($iterator as $fileInfo) {
+            if ($fileInfo->isFile() && $fileInfo->getExtension() === 'php') {
+                $phpFiles[] = $fileInfo->getRealPath();
+            }
+        }
+        
+        return $phpFiles;
+    }
 }//end class
