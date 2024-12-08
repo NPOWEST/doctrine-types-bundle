@@ -4,7 +4,6 @@
 /install_linter.sh
 /test.sh
 /tmp
-/.linter
 /.vscode
 
 ###> squizlabs/php_codesniffer ###
