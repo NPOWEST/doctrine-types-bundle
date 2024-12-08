@@ -22,7 +22,6 @@
         "symfony/dependency-injection": "7.1.*",
         "symfony/config": "7.1.*",
         "symfony/http-kernel": "7.1.*",
-        "league/construct-finder": "^1",
         "npowest/garden-helper": "^1.0"
     },
     "extra": {

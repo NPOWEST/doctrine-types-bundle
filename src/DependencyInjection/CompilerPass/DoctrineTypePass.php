@@ -12,26 +12,27 @@ declare(strict_types=1);
 namespace Npowest\Bundle\DoctrineTypes\DependencyInjection\CompilerPass;
 
 use Generator;
-use League\ConstructFinder\ConstructFinder;
 use ReflectionClass;
+use ReflectionException;
+use RuntimeException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 use function array_key_exists;
 use function is_string;
 use function sprintf;
+use function str_contains;
+use function str_replace;
 
 final class DoctrineTypePass implements CompilerPassInterface
 {
     private const CONTAINER_TYPES_PARAMETER = 'doctrine.dbal.connection_factory.types';
 
-    private const PROJECT_TYPES_PATTERN = '/DBAL\\\\Types(\\\\(.*))?/i';
-
     private const TYPE_NAME_CONSTANT_NAME = 'NAME';
 
     private const SRC_FOLDER_MASK = '%s/src';
 
-    private string $projectDir = '';
+    private string $projectDir;
 
     public function __construct()
     {
@@ -51,51 +52,72 @@ final class DoctrineTypePass implements CompilerPassInterface
             $name      = $type['name'];
             $namespace = $type['namespace'];
 
-            if (array_key_exists($name, $typeDefinition))
+            if (! array_key_exists($name, $typeDefinition))
             {
-                continue;
+                $typeDefinition[$name] = ['class' => $namespace];
             }
-
-            $typeDefinition[$name] = ['class' => $namespace];
         }
 
         $container->setParameter(self::CONTAINER_TYPES_PARAMETER, $typeDefinition);
     }//end process()
 
+    private function isSupportedType(ReflectionClass $reflection): bool
+    {
+        return $reflection->hasConstant(self::TYPE_NAME_CONSTANT_NAME)
+            && is_string($reflection->getConstant(self::TYPE_NAME_CONSTANT_NAME));
+    }//end isSupportedType()
+
     /**
      * @return Generator<int, array{namespace: class-string, name: string}>
+     *
+     * @throws RuntimeException
      */
     private function generateTypes(): iterable
     {
         $srcFolder = sprintf(self::SRC_FOLDER_MASK, $this->projectDir);
 
-        $classNames = ConstructFinder::locatedIn($srcFolder)->findClassNames();
-
-        foreach ($classNames as $className)
+        if (! is_dir($srcFolder))
         {
-            if (0 === preg_match(self::PROJECT_TYPES_PATTERN, $className))
+            throw new RuntimeException(sprintf('The source folder "%s" does not exist.', $srcFolder));
+        }
+
+        // Используем glob для поиска всех PHP файлов в директории
+        $files = glob($srcFolder.'/**/*.php');
+
+        foreach ($files as $file)
+        {
+            $namespace = $this->getNamespaceFromFile($file);
+
+            if (! str_contains($namespace, 'DBAL\\Types'))
             {
                 continue;
             }
 
-            $reflection = new ReflectionClass($className);
-
-            if (! $reflection->hasConstant(self::TYPE_NAME_CONSTANT_NAME))
+            try
             {
-                continue;
+                $reflection = new ReflectionClass($namespace);
+
+                if ($this->isSupportedType($reflection))
+                {
+                    yield [
+                        'namespace' => $reflection->getName(),
+                        'name'      => $reflection->getConstant(self::TYPE_NAME_CONSTANT_NAME),
+                    ];
+                }
             }
-
-            $constantValue = $reflection->getConstant(self::TYPE_NAME_CONSTANT_NAME);
-
-            if (! is_string($constantValue))
+            catch (ReflectionException $e)
             {
-                continue;
+                error_log($e->getMessage());
             }
-
-            yield [
-                'namespace' => $reflection->getName(),
-                'name'      => $constantValue,
-            ];
         }//end foreach
     }//end generateTypes()
+
+    private function getNamespaceFromFile(string $file): string
+    {
+        // Определяем пространство имен, заменяя пути на обратные слеши и убирая .php
+        $relativePath = str_replace([$this->projectDir.'/src/', '.php'], ['', ''], $file);
+        $namespace    = str_replace('/', '\\', $relativePath);
+
+        return 'Npowest\\Bundle\\DoctrineTypes\\'.ltrim($namespace, '\\');
+    }//end getNamespaceFromFile()
 }//end class
