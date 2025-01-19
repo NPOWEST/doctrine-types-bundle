@@ -3,15 +3,19 @@
 This bundle adds Doctrine Types.
 
 ## Requirements
-Symfony ``7.1.*``
+
+Symfony ``7.2.*``
 
 PHP ``>=8.2``
 
 ## Install
+
 ### Composer
+
 ```shell
 composer require npowest/doctrine-types-bundle
 ```
+
 ### Register bundle
 
 ```php
