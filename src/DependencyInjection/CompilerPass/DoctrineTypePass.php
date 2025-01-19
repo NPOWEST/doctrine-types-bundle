@@ -116,11 +116,13 @@ final class DoctrineTypePass implements CompilerPassInterface
 
     private function getNamespaceFromFile(string $file): string
     {
+        $filePart = explode('src/', $file);
+        $file     = end($filePart);
         // Определяем пространство имен, заменяя пути на обратные слеши и убирая .php
         $relativePath = str_replace([$this->projectDir.'/src/', '.php'], ['', ''], $file);
         $namespace    = str_replace('/', '\\', $relativePath);
 
-        return 'Npowest\\Bundle\\DoctrineTypes\\'.ltrim($namespace, '\\');
+        return 'Npowest\\Bundle\\DoctrineTypes\\'.mb_ltrim($namespace, '\\');
     }//end getNamespaceFromFile()
 
     /**
@@ -130,13 +132,15 @@ final class DoctrineTypePass implements CompilerPassInterface
     {
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
         $phpFiles = [];
-        
-        foreach ($iterator as $fileInfo) {
-            if ($fileInfo->isFile() && $fileInfo->getExtension() === 'php') {
+
+        foreach ($iterator as $fileInfo)
+        {
+            if ($fileInfo->isFile() && 'php' === $fileInfo->getExtension())
+            {
                 $phpFiles[] = $fileInfo->getRealPath();
             }
         }
-        
+
         return $phpFiles;
-    }
+    }//end getFiles()
 }//end class

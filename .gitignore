@@ -1,6 +1,4 @@
 /vendor
-/composer.lock
-/symfony.lock
 /install_linter.sh
 /test.sh
 /tmp
