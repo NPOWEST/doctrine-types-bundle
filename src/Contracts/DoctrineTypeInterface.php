@@ -11,4 +11,9 @@ declare(strict_types=1);
 
 namespace Npowest\Bundle\DoctrineTypes\Contracts;
 
-interface DoctrineTypeInterface {}//end interface
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
+interface DoctrineTypeInterface
+{
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string;
+}//end interface

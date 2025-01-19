@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Npowest\Bundle\DoctrineTypes\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\{ConversionException};
+use Doctrine\DBAL\Types\ConversionException;
 use JsonException;
 use Npowest\Bundle\DoctrineTypes\DBAL\AbstractTypes\AbstractFixedJsonType;
 use Npowest\GardenHelper\Collection\DataCollection;
