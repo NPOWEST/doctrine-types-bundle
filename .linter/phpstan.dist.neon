@@ -8,11 +8,4 @@ parameters:
         maximumNumberOfProcesses: 8
     paths:
         - ../src/
-    ignoreErrors:
-        - '#Unused .*::__construct#'
-        - '#Unused App\\.*::get.*#'
-        - '#Unused App\\.*::set.*#'
-        - '#Unused App\\Entity\\.*::is.*#'
-        - '#Unused App\\Entity\\.*::add.*#'
-        - '#Unused App\\Entity\\.*::remove.*#'
 

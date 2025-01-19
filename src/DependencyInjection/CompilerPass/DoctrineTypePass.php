@@ -63,6 +63,7 @@ final class DoctrineTypePass implements CompilerPassInterface
         $container->setParameter(self::CONTAINER_TYPES_PARAMETER, $typeDefinition);
     }//end process()
 
+    // @phpstan-ignore missingType.generics
     private function isSupportedType(ReflectionClass $reflection): bool
     {
         return $reflection->hasConstant(self::TYPE_NAME_CONSTANT_NAME)

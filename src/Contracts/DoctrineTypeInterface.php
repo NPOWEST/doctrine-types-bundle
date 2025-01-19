@@ -15,5 +15,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 interface DoctrineTypeInterface
 {
+    /**
+     * @param array<mixed> $column
+     */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string;
 }//end interface
